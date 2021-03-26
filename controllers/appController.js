@@ -79,7 +79,11 @@ module.exports.deleteCompany = (req,res,next)=>{
         req.params._id,
         function (error, result) {
             if (error) {
-                throw error;
+                return res.status(500).send({
+                        error: {
+                            error: e.message
+                        }
+                    });
             } else {
                 res.status(200).json(result);
             }
@@ -90,12 +94,430 @@ module.exports.GetCompanyByCity = (req,res,next)=>{
    Company.aggregate([{ $match: { 'city': req.params.query } }],
         function (error, result) {
             if (error) {
-                throw error;
+                return res.status(500).send({
+                        error: {
+                            error: e.message
+                        }
+                    });
             } else {
                 res.status(200).json(result);
             }
         }
     );
+}
+
+module.exports.GetCompanyByCity = (req,res,next)=>{
+   Company.aggregate([{ $match: { 'city': req.params.query } }],
+        function (error, result) {
+            if (error) {
+                return res.status(500).send({
+                        error: {
+                            error: e.message
+                        }
+                    });
+            } else {
+                res.status(200).json(result);
+            }
+        }
+    );
+}
+module.exports.CompanyDetails = (req,res,next)=>{
+	var param =req.params.query
+	var query =req.body
+   Company.find([{ $match: { 'city': req.params.query } }],
+        function (error, result) {
+            if (error) {
+                return res.status(500).send({
+                        error: {
+                            error: e.message
+                        }
+                    });
+            } else {
+                res.status(200).json(result);
+            }
+        }
+    );
+}
+
+module.exports.PopularProducts = (req,res,next)=>{
+	// var city = req.params.city
+	// console.log(req.query)
+	var query =req.body
+	// var city="london";
+	var city=0;
+	var product=0;
+	// var company=0;
+	// var company="Sir Edwards LTD";
+	// var company=req.query.company;
+	var city=req.query.city;
+	var query  = Object.keys(req.query)[0] ;
+
+	console.log(query)
+
+	if (query=='city') {
+  Customer.aggregate(
+  [
+    { $match : { city : req.query.city } },
+    { $unwind : "$product" },
+
+    // { $group : { _id : "$product" , sales : { $sum : 1 },customers: { $push: '$product' } } },
+      { $group : { _id : "$product" , sales : { $sum : 1 }} },
+    {
+        
+        $lookup: {
+            from: 'products',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'product'
+        
+         }
+    },
+
+    //    { $unwind : "$customers" },
+    //  {
+    // 	$lookup: {
+    //         from: 'customers',
+    //         localField: '_id',
+    //         foreignField: 'product',
+    //         as: 'customers'
+        
+    //      }
+    // },
+  
+
+     { $unwind : "$product" },
+     {
+    	$lookup: {
+            from: 'companies',
+            localField: 'product.company',
+            foreignField: '_id',
+            as: 'product.company'
+        
+         }
+    },
+   
+
+    // {$arrayToObject: "$product"},
+    { $sort : { sales : -1 } },
+    // { $limit : 5 }
+  ],
+     async   function  (error, result) {
+            if (error) {
+                return res.status(500).send({
+                        error: {
+                            error: error.message
+                        }
+                    });
+            } else {
+
+            	return  res.status(200).json(result);
+
+            }}
+            );
+
+   }
+   	else if (query=='company') {
+Customer.aggregate(
+  [
+   
+    { $unwind : "$product" },
+
+    // { $group : { _id : "$product" , sales : { $sum : 1 },customers: { $push: '$product' } } },
+      // { $group : { _id : "$product" , sales : { $sum : 1 }} },
+    {
+        
+        $lookup: {
+            from: 'products',
+            localField: 'product',
+            foreignField: '_id',
+            as: 'product'
+        
+         }
+    },
+
+    //    { $unwind : "$customers" },
+    //  {
+    // 	$lookup: {
+    //         from: 'customers',
+    //         localField: '_id',
+    //         foreignField: 'product',
+    //         as: 'customers'
+        
+    //      }
+    // },
+  
+
+     { $unwind : "$product" },
+     {
+    	$lookup: {
+            from: 'companies',
+            localField: 'product.company',
+            foreignField: '_id',
+            as: 'company'
+        
+         }
+    },
+     { $match : { "company.name" : req.query.company } },
+     { $group : { _id : "$city" , sales : { $sum : 1 },customers: { $push: '$$ROOT'} } },
+    // {$arrayToObject: "$product"},
+    { $sort : { sales : -1 } },
+    // { $limit : 5 }
+  ],
+     async   function  (error, result) {
+            if (error) {
+                return res.status(500).send({
+                        error: {
+                            error: error.message
+                        }
+                    });
+            } else {
+
+            	return  res.status(200).json(result);
+
+            }}
+            );
+
+   }
+   	else {
+  Customer.aggregate(
+  [
+    // { $match : { city : city } },
+    { $unwind : "$product" },
+
+    // { $group : { _id : "$product" , sales : { $sum : 1 },customers: { $push: '$product' } } },
+      { $group : { _id : "$product" , sales : { $sum : 1 }} },
+    {
+        
+        $lookup: {
+            from: 'products',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'product'
+        
+         }
+    },
+  
+
+     // { $unwind : "$customers" },
+    //  {
+    // 	$lookup: {
+    //         from: 'customers',
+    //         localField: '_id',
+    //         foreignField: 'product',
+    //         as: 'customers'
+        
+    //      }
+    // },
+
+    // {$arrayToObject: "$product"},
+    { $sort : { sales : -1 } },
+    { $limit : 5 }
+  ],
+     async   function  (error, result) {
+            if (error) {
+                return res.status(500).send({
+                        error: {
+                            error: error.message
+                        }
+                    });
+            } else {
+
+            	return  res.status(200).json(result);
+
+            }}
+            );
+
+   }
+}
+module.exports.customersList  = (req,res,next)=>{
+	// var city = req.params.city
+	// console.log(req.query)
+	var query =req.body
+	// var city="london";
+	var city=0;
+	var product=0;
+	// var company=0;
+	// var company="Sir Edwards LTD";
+	// var company=req.query.company;
+	var city=req.query.city;
+	var query  = Object.keys(req.query)[0] ;
+
+	console.log(query)
+
+	if (query=='city') {
+  Customer.aggregate(
+  [
+    { $match : { city : req.query.city } },
+    { $unwind : "$product" },
+
+    // { $group : { _id : "$product" , sales : { $sum : 1 },customers: { $push: '$product' } } },
+      { $group : { _id : "$product" , sales : { $sum : 1 }} },
+    {
+        
+        $lookup: {
+            from: 'products',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'product'
+        
+         }
+    },
+
+    //    { $unwind : "$customers" },
+    //  {
+    // 	$lookup: {
+    //         from: 'customers',
+    //         localField: '_id',
+    //         foreignField: 'product',
+    //         as: 'customers'
+        
+    //      }
+    // },
+  
+
+     { $unwind : "$product" },
+     {
+    	$lookup: {
+            from: 'companies',
+            localField: 'product.company',
+            foreignField: '_id',
+            as: 'product.company'
+        
+         }
+    },
+   
+
+    // {$arrayToObject: "$product"},
+    { $sort : { sales : -1 } },
+    // { $limit : 5 }
+  ],
+     async   function  (error, result) {
+            if (error) {
+                return res.status(500).send({
+                        error: {
+                            error: error.message
+                        }
+                    });
+            } else {
+
+            	return  res.status(200).json(result);
+
+            }}
+            );
+
+   }
+   	else if (query=='company') {
+Customer.aggregate(
+  [
+   
+    { $unwind : "$product" },
+
+    // { $group : { _id : "$product" , sales : { $sum : 1 },customers: { $push: '$product' } } },
+      // { $group : { _id : "$product" , sales : { $sum : 1 }} },
+    {
+        
+        $lookup: {
+            from: 'products',
+            localField: 'product',
+            foreignField: '_id',
+            as: 'product'
+        
+         }
+    },
+
+    //    { $unwind : "$customers" },
+    //  {
+    // 	$lookup: {
+    //         from: 'customers',
+    //         localField: '_id',
+    //         foreignField: 'product',
+    //         as: 'customers'
+        
+    //      }
+    // },
+  
+
+     { $unwind : "$product" },
+     {
+    	$lookup: {
+            from: 'companies',
+            localField: 'product.company',
+            foreignField: '_id',
+            as: 'company'
+        
+         }
+    },
+     { $match : { "company.name" : req.query.company } },
+     { $group : { _id : "$city" , sales : { $sum : 1 },customers: { $push: '$$ROOT'} } },
+    // {$arrayToObject: "$product"},
+    { $sort : { sales : -1 } },
+    // { $limit : 5 }
+  ],
+     async   function  (error, result) {
+            if (error) {
+                return res.status(500).send({
+                        error: {
+                            error: error.message
+                        }
+                    });
+            } else {
+
+            	return  res.status(200).json(result);
+
+            }}
+            );
+
+   }
+   	else {
+  Customer.aggregate(
+  [
+    // { $match : { city : city } },
+    { $unwind : "$product" },
+
+    // { $group : { _id : "$product" , sales : { $sum : 1 },customers: { $push: '$product' } } },
+      { $group : { _id : "$product" , sales : { $sum : 1 }} },
+    {
+        
+        $lookup: {
+            from: 'products',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'product'
+        
+         }
+    },
+  
+
+     // { $unwind : "$customers" },
+    //  {
+    // 	$lookup: {
+    //         from: 'customers',
+    //         localField: '_id',
+    //         foreignField: 'product',
+    //         as: 'customers'
+        
+    //      }
+    // },
+
+    // {$arrayToObject: "$product"},
+    { $sort : { sales : -1 } },
+    { $limit : 5 }
+  ],
+     async   function  (error, result) {
+            if (error) {
+                return res.status(500).send({
+                        error: {
+                            error: error.message
+                        }
+                    });
+            } else {
+
+            	return  res.status(200).json(result);
+
+            }}
+            );
+
+   }
 }
 
 module.exports.createProduct = (req, res, next) => {
@@ -169,7 +591,11 @@ module.exports.deleteProduct = (req,res,next)=>{
         req.params._id,
         function (error, result) {
             if (error) {
-                throw error;
+                return res.status(500).send({
+                        error: {
+                            error: e.message
+                        }
+                    });
             } else {
                 res.status(200).json(result);
             }
@@ -181,7 +607,7 @@ module.exports.createCustomer = (req, res, next) => {
     customer.name = req.body.name;
     customer.email = req.body.email;
     customer.city=req.body.city;
-     customer.Products = req.body.Products;
+     customer.product = req.body.product;
 
 
 
@@ -249,7 +675,11 @@ module.exports.deleteCustomer = (req,res,next)=>{
         req.params._id,
         function (error, result) {
             if (error) {
-                throw error;
+                return res.status(500).send({
+                        error: {
+                            error: e.message
+                        }
+                    });
             } else {
                 res.status(200).json(result);
             }
@@ -290,7 +720,11 @@ module.exports.GetCustomerByCity = (req,res,next)=>{
   // }).exec(
   //       function (error, result) {
   //           if (error) {
-  //               throw error;
+  //               return res.status(500).send({
+                    //     error: {
+                    //         error: e.message
+                    //     }
+                    // });
   //           } else {
   //               res.status(200).json(result);
   //           }

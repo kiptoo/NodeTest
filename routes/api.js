@@ -26,6 +26,7 @@ router.get('/company/:_id', ctrlApp.GetCompany);
 router.post('/update/company/:_id', ctrlApp.createCompany);
 router.post('/delete/company/:_id', ctrlApp.deleteCustomer);
 router.get('/companies_by_city', ctrlApp.GetCompanyByCity);
+router.get('/get_company_details', ctrlApp.CompanyDetails);
 
 
 
@@ -35,6 +36,7 @@ router.get('/product/:_id', ctrlApp.GetProduct);
 router.post('/update/product/:_id', ctrlApp.createProduct);
 router.post('/delete/product/:_id', ctrlApp.deleteCustomer);
 router.get('/products_by_company', ctrlApp.GetProduct);
+router.get('/get_popular_products', ctrlApp.PopularProducts);
 
 router.post('/new/customer', ctrlApp.createCustomer);
 router.get('/customers', ctrlApp.GetCustomer);

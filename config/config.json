@@ -1,7 +1,7 @@
 {
     "development": {
         "PORT": 3000,        
-         "MONGODB_URI": "mongodb+srv://sachin:sachin@sample.dwtg3.mongodb.net/finapp?retryWrites=true&w=majority",
+         "MONGODB_URI": "mongodb+srv://admin:EXc9TyfU657WUn@cluster0.sbtwv.mongodb.net/node?retryWrites=true&w=majority",
         "JWT_SECRET": "SECRET#123",
         "JWT_EXP": "10h"
     },
@@ -9,6 +9,7 @@
         "PORT": 80,
         "MONGODB_URL": "mongodb+srv://sachin:sachin@sample.dwtg3.mongodb.net/finapp?retryWrites=true&w=majority",
         "MONGODB_URI": "mongodb+srv://admin:5nyfJkSwbenDYEy@cluster0.wm4pl.mongodb.net/nodetest?retryWrites=true&w=majority",
+         "MONGODB_URI2":"mongodb+srv://admin:EXc9TyfU657WUn@cluster0.sbtwv.mongodb.net/node?retryWrites=true&w=majority",
         "JWT_SECRET": "SECRET#123",
         "JWT_EXP": "2h"
     }

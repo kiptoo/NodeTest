@@ -9,7 +9,7 @@ var CustomerSchema = new mongoose.Schema({
      email: {
         type: String,
         required: 'Email can\'t be empty',
-        // unique: true
+        unique: true
     },
      
       city: {
@@ -17,7 +17,11 @@ var CustomerSchema = new mongoose.Schema({
         required: 'city can\'t be empty',
         // unique: true
     },
-    Products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+    // products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+    product: {
+     type: Schema.Types.ObjectId, ref: 'Product',
+     required: 'product can\'t be empty',
+      },
 });
 var ProductSchema = new mongoose.Schema({
 	 name: {
@@ -30,7 +34,11 @@ var ProductSchema = new mongoose.Schema({
 	        required: 'price can\'t be empty',
 	        // required: true
 	    },	    
-	    company: { type: Schema.Types.ObjectId, ref: 'Company' },
+	    company: { 
+	    	type: Schema.Types.ObjectId, ref: 'Company',
+	    	 required: 'company can\'t be empty',
+
+	    	  },
 });
 var CompanySchema = new mongoose.Schema({
       name: {
