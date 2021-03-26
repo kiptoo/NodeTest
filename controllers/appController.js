@@ -329,7 +329,7 @@ Customer.aggregate(
 
    }
 }
-module.exports.customersList  = (req,res,next)=>{
+module.exports.customersList  = async (req,res,next)=>{
 	// var city = req.params.city
 	// console.log(req.query)
 	var query =req.body
@@ -339,26 +339,42 @@ module.exports.customersList  = (req,res,next)=>{
 	// var company=0;
 	// var company="Sir Edwards LTD";
 	// var company=req.query.company;
-	var city=req.query.city;
+	var city = req.query.city;
 	var query  = Object.keys(req.query)[0] ;
+	if(req.query.company){
+    var companies = req.query.company.split(",");
+      }
+	// console.log(req.query.customer)
+	if (req.query.customer) {
+	 var customers = req.query.customer.split(",");
+	 console.log(customers)
+	}
 
-	console.log(query)
-
-	if (query=='city') {
-  Customer.aggregate(
+	if (query=='customer') {
+ var  companyMap =[];
+   		// companies.forEach( async function (company) {
+   			 for (let customer of customers) {
+         
+         console.log(customer)
+          
+       
+ await  Customer.aggregate(
   [
-    { $match : { city : req.query.city } },
+    
+     { $match : { "name" : customer } },
     { $unwind : "$product" },
 
-    // { $group : { _id : "$product" , sales : { $sum : 1 },customers: { $push: '$product' } } },
-      { $group : { _id : "$product" , sales : { $sum : 1 }} },
+    { $group : { _id : "$product" , purchases : { $sum : 1 },products: { $push: '$product' } } },
+      // { $group : { _id : "$product" , sales : { $sum : 1 }} },
+      { $unwind : "$products" },
     {
         
+
         $lookup: {
             from: 'products',
             localField: '_id',
             foreignField: '_id',
-            as: 'product'
+            as: 'products'
         
          }
     },
@@ -375,23 +391,25 @@ module.exports.customersList  = (req,res,next)=>{
     // },
   
 
-     { $unwind : "$product" },
+     { $unwind : "$products" },
      {
     	$lookup: {
             from: 'companies',
-            localField: 'product.company',
+            localField: 'products.company',
             foreignField: '_id',
-            as: 'product.company'
+            as: 'companies'
         
          }
     },
-   
-
+     // { $unwind : "$company" },
+    
+     // { $group : { _id : "$city" , sales : { $sum : 1 },customers: { $push: '$$ROOT'} } },
     // {$arrayToObject: "$product"},
     { $sort : { sales : -1 } },
     // { $limit : 5 }
   ],
-     async   function  (error, result) {
+        function async (error, result) {
+     	  
             if (error) {
                 return res.status(500).send({
                         error: {
@@ -399,15 +417,37 @@ module.exports.customersList  = (req,res,next)=>{
                         }
                     });
             } else {
+               // return result;
+            	// return  res.status(200).json(result);
+                var res={};
+            	 res[customer]=result
+            	 companyMap.push(res);
+            	 // console.log(res)
 
-            	return  res.status(200).json(result);
-
-            }}
+            }
+            // var res={};
+            // 	 res[company]=result
+            // 	 companyMap.push(result);
+        }
             );
+           // console.log(data)   
+           // companyMap.push(data); 
+    };
+
+   		// console.log(companyMap)
+  return  res.status(200).json(companyMap);
+
 
    }
    	else if (query=='company') {
-Customer.aggregate(
+   		 var  companyMap =[];
+   		// companies.forEach( async function (company) {
+   			 for (let company of companies) {
+         
+         console.log(company)
+          
+       
+ await  Customer.aggregate(
   [
    
     { $unwind : "$product" },
@@ -447,13 +487,15 @@ Customer.aggregate(
         
          }
     },
-     { $match : { "company.name" : req.query.company } },
-     { $group : { _id : "$city" , sales : { $sum : 1 },customers: { $push: '$$ROOT'} } },
+     { $unwind : "$company" },
+     { $match : { "company.name" : company } },
+     // { $group : { _id : "$city" , sales : { $sum : 1 },customers: { $push: '$$ROOT'} } },
     // {$arrayToObject: "$product"},
     { $sort : { sales : -1 } },
     // { $limit : 5 }
   ],
-     async   function  (error, result) {
+        function async (error, result) {
+     	  
             if (error) {
                 return res.status(500).send({
                         error: {
@@ -461,11 +503,25 @@ Customer.aggregate(
                         }
                     });
             } else {
+               // return result;
+            	// return  res.status(200).json(result);
+                var res={};
+            	 res[company]=result
+            	 companyMap.push(res);
+            	 // console.log(res)
 
-            	return  res.status(200).json(result);
-
-            }}
+            }
+            // var res={};
+            // 	 res[company]=result
+            // 	 companyMap.push(result);
+        }
             );
+           // console.log(data)   
+           // companyMap.push(data); 
+    };
+
+   		// console.log(companyMap)
+  return  res.status(200).json(companyMap);
 
    }
    	else {

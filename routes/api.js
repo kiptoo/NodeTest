@@ -43,7 +43,8 @@ router.get('/customers', ctrlApp.GetCustomer);
 router.get('/customer/:_id', ctrlApp.GetCustomer);
 router.post('/update/customer/:_id', ctrlApp.updateCustomer);
 router.post('/delete/customer/:_id', ctrlApp.deleteCustomer);
-router.get('/customers_by_city', ctrlApp.GetCustomerByCity);
+router.get('/customers_by_company', ctrlApp.customersList);
+
 
 
 
